@@ -49,7 +49,7 @@ exports.updateGoal = async (req, res) => {
         const updateData = req.body;
         if(updateData.milestones){
             updateData.progress = calculateProgress(updateData.milestones);
-        }
+        };
 
         const goal = await Goal.findOneAndUpdate(
             {
