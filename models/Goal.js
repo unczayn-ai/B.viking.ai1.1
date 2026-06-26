@@ -33,7 +33,21 @@ progress:{
 deadline:String,
 
 
-milestones:String,
+milestones:[
+    {
+        title:{
+        type:String,
+        required:true,
+        },
+        completed:{
+            type:Boolean,
+            default:false,
+        },
+        completedAt:{
+            type:Date,
+        }
+    }
+],
 
 
 velocity:String,
@@ -47,5 +61,4 @@ timestamps:true
 });
 
 
-module.exports =
-mongoose.model("Goal",goalSchema);
+module.exports = mongoose.model("Goal",goalSchema);

@@ -1,4 +1,5 @@
 const Goal = require("../models/Goal");
+const calculateProgress = require("../utils/calculateProgress");
 
 exports.getGoals = async (req,res) => {
     try {
@@ -9,6 +10,7 @@ exports.getGoals = async (req,res) => {
         res.json(goals);
 
     } catch(error) {
+        console.log("Get Goal Error: ", error);
         res.status(500).json({
             error: error.message
         });
@@ -17,14 +19,16 @@ exports.getGoals = async (req,res) => {
 
 exports.createGoal = async (req, res) => {
     try {
+        const milestones = req.body.milestones || [];
+
         const goal = await Goal.create({
             user: req.user._id || req.user.id,
             title: req.body.title,
             description: req.body.description,
             priority: req.body.priority,
-            progress: req.body.progress,
             deadline: req.body.deadline,
-            milestones: req.body.milestones,
+            milestones,
+            progress: calculateProgress(milestones),
             velocity: req.body.velocity,
             streak: req.body.streak,
         });
@@ -39,14 +43,21 @@ exports.createGoal = async (req, res) => {
 }
 
 exports.updateGoal = async (req, res) => {
+
+    
     try {
+        const updateData = req.body;
+        if(updateData.milestones){
+            updateData.progress = calculateProgress(updateData.milestones);
+        }
+
         const goal = await Goal.findOneAndUpdate(
             {
                 _id: req.params.id,
                 user: req.user._id || req.user.id,
             },
 
-            req.body,
+            updateData,
 
             {
                 new: true
