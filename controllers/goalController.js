@@ -1,5 +1,6 @@
 const Goal = require("../models/Goal");
 const calculateProgress = require("../utils/calculateProgress");
+const addActivity = require("../utils/addActivity");
 
 exports.getGoals = async (req,res) => {
     try {
@@ -29,6 +30,12 @@ exports.createGoal = async (req, res) => {
             deadline: req.body.deadline,
             milestones,
             progress: calculateProgress(milestones),
+            activity: [
+                {
+                    type: "MILESTONE_ADDED", 
+                    message: "Goal created",
+                }
+            ],
             velocity: req.body.velocity,
             streak: req.body.streak,
         });
@@ -47,8 +54,24 @@ exports.updateGoal = async (req, res) => {
     
     try {
         const updateData = req.body;
+
+        const oldGoal = await Goal.findOne({
+            _id: req.params.id,
+            user: req.user._id || req.user.id,
+        });
+        
         if(updateData.milestones){
+
             updateData.progress = calculateProgress(updateData.milestones);
+            updateData.activity = oldGoal?.activity || [];
+
+            updateData.milestones.forEach((milestone) =>{
+                const oldMilestone = oldGoal.milestones.find(m => m.title === milestone.title);
+                
+                if(milestone.completed && !oldMilestone?.completed){
+                    addActivity(updateData, "MILESTONE_COMPLETED", `Completed milestone: ${milestone.title}`);
+                }
+            });
         };
 
         const goal = await Goal.findOneAndUpdate(

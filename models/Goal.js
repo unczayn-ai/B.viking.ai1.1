@@ -49,6 +49,25 @@ milestones:[
     }
 ],
 
+activity: [
+    {
+        type: {
+            type: String,
+            enum:[
+                "MILESTONE_COMPLETED",
+                "MILESTONE_ADDED",
+                "MILESTONE_UPDATED",
+                "PROGRESS_UPDATED",
+            ],
+        },
+        message: String,
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        }
+    }
+],
+
 
 velocity:String,
 
